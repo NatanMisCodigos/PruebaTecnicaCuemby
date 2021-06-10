@@ -22,12 +22,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.airbnb.lottie.LottieAnimationView;
 import com.squareup.picasso.Picasso;
 
-import co.com.bolsiyo.mobile.pruebatecnicabolsiyo.R;
-import co.com.bolsiyo.mobile.pruebatecnicabolsiyo.interfaces.ImageInterfaces;
-import co.com.bolsiyo.mobile.pruebatecnicabolsiyo.model.ImageAdapter;
-import co.com.bolsiyo.mobile.pruebatecnicabolsiyo.model.ImageApi;
-import co.com.bolsiyo.mobile.pruebatecnicabolsiyo.presenter.ImagePresenter;
-import co.com.bolsiyo.mobile.pruebatecnicabolsiyo.rest.Utils;
+import co.com.bolsiyo.mobile.pruebatecnicacuemby.R;
+import co.com.bolsiyo.mobile.pruebatecnicacuemby.interfaces.ImageInterfaces;
+import co.com.bolsiyo.mobile.pruebatecnicacuemby.model.ImageAdapter;
+import co.com.bolsiyo.mobile.pruebatecnicacuemby.model.ImageApi;
+import co.com.bolsiyo.mobile.pruebatecnicacuemby.presenter.ImagePresenter;
+import co.com.bolsiyo.mobile.pruebatecnicacuemby.rest.Utils;
 
 public class ActivityView extends Activity implements ImageInterfaces.View {
 
