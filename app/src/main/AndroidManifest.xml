@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="co.com.bolsiyo.mobile.pruebatecnicacuemby">
+    package="co.com.cuemby.mobile.pruebatecnicacuemby">
 
     <application
         android:allowBackup="true"
@@ -9,7 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.PruebaTecnicaCuemby">
-        <activity android:name=".view.ActivityView">
+        <activity android:name="co.com.cuemby.mobile.pruebatecnicacuemby.view.ActivityView">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
