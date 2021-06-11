@@ -29,12 +29,6 @@ public class Presenter implements InterfacesPublicas.Presenter {
     }
 
     @Override
-    public void showDetailsImage(HeroApi.Results image) {
-        if(view != null)
-            view.showDetailsImage(image);
-    }
-
-    @Override
     public void addHeroRight(HeroApi.Results hero) {
         if(view != null)
             view.addHeroRight(hero);

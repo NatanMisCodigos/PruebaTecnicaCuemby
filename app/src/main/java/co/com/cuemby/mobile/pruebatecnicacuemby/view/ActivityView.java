@@ -3,6 +3,7 @@ package co.com.cuemby.mobile.pruebatecnicacuemby.view;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.KeyEvent;
@@ -41,11 +42,11 @@ public class ActivityView extends Activity implements InterfacesPublicas.View {
     private TextView messageEmpty;
     // Elementos del heroe de la izquierda
     private TextView nameHeroLeft;
-    private ImageView imageHeroLeft;
+    private LottieAnimationView imageHeroLeft;
     private HeroApi.Results heroLeft;
     // Elementos del heroe de la derecha
     private TextView nameHeroRight;
-    private ImageView imageHeroRight;
+    private LottieAnimationView imageHeroRight;
     private HeroApi.Results heroRight;
     // Elemento del cardView para ver el enfrentamiento
     private CardView cardViewFight;
@@ -101,21 +102,105 @@ public class ActivityView extends Activity implements InterfacesPublicas.View {
      * mostrarlos en un dialog
      * *******************************************/
     void showFight() {
-        Dialog dialogImage = new Dialog(this);
-        dialogImage.setContentView(R.layout.fight_hero);
-        dialogImage.setCancelable(false);
+        Dialog dialogHeroFight = new Dialog(this);
+        dialogHeroFight.setContentView(R.layout.fight_hero);
+        dialogHeroFight.setCancelable(false);
 
+        ImageView close = dialogHeroFight.findViewById(R.id.cerrar);
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogHeroFight.dismiss();
+            }
+        });
 
+        // Elementos del heroe izquierdo
+        CardView cardHeroLeft = dialogHeroFight.findViewById(R.id.dialog_hero_left);
+        TextView nameHeroLeft = dialogHeroFight.findViewById(R.id.dialog_name_hero_left);
+        nameHeroLeft.setText( this.heroLeft.getName() );
+        ImageView imageHeroLeft = dialogHeroFight.findViewById(R.id.dialog_image_hero_left);
+        Picasso.get().load( this.heroLeft.getImage().getUrl() ).into( imageHeroLeft );
+        TextView speedHeroLeft = dialogHeroFight.findViewById(R.id.speed_hero_left);
+        speedHeroLeft.setText( "Speed: " + this.heroLeft.getPowerstats().getSpeed() );
+        TextView powerHeroLeft = dialogHeroFight.findViewById(R.id.power_hero_left);
+        powerHeroLeft.setText( "Power: " + this.heroLeft.getPowerstats().getPower() );
 
-        Utils.dialogSize(dialogImage);
-        dialogImage.show();
+        // Elementos del heroe derecho
+        CardView cardHeroRight = dialogHeroFight.findViewById(R.id.dialog_hero_right);
+        TextView nameHeroRight = dialogHeroFight.findViewById(R.id.dialog_name_hero_right);
+        nameHeroRight.setText( this.heroRight.getName() );
+        ImageView imageHeroRight = dialogHeroFight.findViewById(R.id.dialog_image_hero_right);
+        Picasso.get().load( this.heroRight.getImage().getUrl() ).into( imageHeroRight );
+        TextView speedHeroRight = dialogHeroFight.findViewById(R.id.speed_hero_right);
+        speedHeroRight.setText( "Speed: " + this.heroRight.getPowerstats().getSpeed() );
+        TextView powerHeroRight = dialogHeroFight.findViewById(R.id.power_hero_right);
+        powerHeroRight.setText( "Power: " + this.heroRight.getPowerstats().getPower() );
+
+        // Speed y Power
+        TextView resulFight = dialogHeroFight.findViewById(R.id.result_fight);
+        CardView fightBySpeed = dialogHeroFight.findViewById(R.id.dialog_card_speed);
+        fightBySpeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if( Integer.parseInt( heroLeft.getPowerstats().getSpeed()) >
+                        Integer.parseInt( heroRight.getPowerstats().getSpeed()) ){
+                    cardHeroLeft.setCardBackgroundColor( Color.parseColor("#C4FA95") );
+                    cardHeroRight.setCardBackgroundColor( Color.parseColor("#FFFFFF") );
+                    resulFight.setText( "Gana " + heroLeft.getName() +"\nen Velocidad" );
+                    return;
+                }
+                if( Integer.parseInt( heroLeft.getPowerstats().getSpeed()) <
+                        Integer.parseInt( heroRight.getPowerstats().getSpeed()) ){
+                    cardHeroLeft.setCardBackgroundColor( Color.parseColor("#FFFFFF") );
+                    cardHeroRight.setCardBackgroundColor( Color.parseColor("#C4FA95") );
+                    resulFight.setText( "Gana " + heroRight.getName() +"\nen Velocidad" );
+                    return;
+                }
+                cardHeroLeft.setCardBackgroundColor( Color.parseColor("#FFFEB7") );
+                cardHeroRight.setCardBackgroundColor( Color.parseColor("#FFFEB7") );
+                resulFight.setText( "En velocidad son iguales" );
+            }
+        });
+        CardView fightByPower = dialogHeroFight.findViewById(R.id.dialog_card_power);
+        fightByPower.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if( Integer.parseInt( heroLeft.getPowerstats().getPower()) >
+                        Integer.parseInt( heroRight.getPowerstats().getPower()) ){
+                    cardHeroLeft.setCardBackgroundColor( Color.parseColor("#C4FA95") );
+                    cardHeroRight.setCardBackgroundColor( Color.parseColor("#FFFFFF") );
+                    resulFight.setText( "Gana " + heroLeft.getName() +"\nen Poder" );
+                    return;
+                }
+                if( Integer.parseInt( heroLeft.getPowerstats().getPower()) <
+                        Integer.parseInt( heroRight.getPowerstats().getPower()) ){
+                    cardHeroLeft.setCardBackgroundColor( Color.parseColor("#FFFFFF") );
+                    cardHeroRight.setCardBackgroundColor( Color.parseColor("#C4FA95") );
+                    resulFight.setText( "Gana " + heroRight.getName() +"\nen Poder" );
+                    return;
+                }
+                cardHeroLeft.setCardBackgroundColor( Color.parseColor("#FFFEB7") );
+                cardHeroRight.setCardBackgroundColor( Color.parseColor("#FFFEB7") );
+                resulFight.setText( "En poder sin duda son iguales" );
+            }
+        });
+
+        Utils.dialogSize(dialogHeroFight);
+        dialogHeroFight.show();
     }
 
     @Override
     public void addHeroLeft(HeroApi.Results hero) {
         this.heroLeft = hero;
-        nameHeroLeft.setText( hero.getName() );
-        Picasso.get().load( hero.getImage().getUrl() ).into(imageHeroLeft);
+
+        if(this.heroLeft.getPowerstats().getSpeed().equals("null"))
+            this.heroLeft.getPowerstats().setSpeed("0");
+        if(this.heroLeft.getPowerstats().getPower().equals("null"))
+            this.heroLeft.getPowerstats().setPower("0");
+
+        nameHeroLeft.setText( this.heroLeft.getName() );
+        imageHeroLeft.pauseAnimation();
+        Picasso.get().load( this.heroLeft.getImage().getUrl() ).into(imageHeroLeft);
         if(this.heroRight != null)
             cardViewFight.setVisibility(View.VISIBLE);
     }
@@ -123,8 +208,15 @@ public class ActivityView extends Activity implements InterfacesPublicas.View {
     @Override
     public void addHeroRight(HeroApi.Results hero) {
         this.heroRight = hero;
-        nameHeroRight.setText( hero.getName() );
-        Picasso.get().load( hero.getImage().getUrl() ).into(imageHeroRight);
+
+        if(this.heroRight.getPowerstats().getSpeed().equals("null"))
+            this.heroRight.getPowerstats().setSpeed("0");
+        if(this.heroRight.getPowerstats().getPower().equals("null"))
+            this.heroRight.getPowerstats().setPower("0");
+
+        nameHeroRight.setText( this.heroRight.getName() );
+        imageHeroRight.pauseAnimation();
+        Picasso.get().load( this.heroRight.getImage().getUrl() ).into(imageHeroRight);
         if(this.heroLeft != null)
             cardViewFight.setVisibility(View.VISIBLE);
     }
@@ -143,18 +235,18 @@ public class ActivityView extends Activity implements InterfacesPublicas.View {
 
         initEditTextSearch();
         // Elementos del heroe de la izquierda
-        nameHeroLeft = findViewById(R.id.name_hero_left);
-        imageHeroLeft = findViewById(R.id.image_hero_left);
+        nameHeroLeft = findViewById(R.id.dialog_name_hero_left);
+        imageHeroLeft = findViewById(R.id.dialog_image_hero_left);
         // Elementos del heroe de la derecha
-        nameHeroRight = findViewById(R.id.name_hero_right);
-        imageHeroRight = findViewById(R.id.image_hero_right);
+        nameHeroRight = findViewById(R.id.dialog_name_hero_right);
+        imageHeroRight = findViewById(R.id.dialog_image_hero_right);
         // CardView para ver la pelea
         cardViewFight = findViewById(R.id.cardViewFight);
         viewFight = findViewById(R.id.view_fight);
         viewFight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                showFight();
             }
         });
 
