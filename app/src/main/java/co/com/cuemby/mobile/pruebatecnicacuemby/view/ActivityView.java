@@ -49,6 +49,7 @@ public class ActivityView extends Activity implements InterfacesPublicas.View {
     private HeroApi.Results heroRight;
     // Elemento del cardView para ver el enfrentamiento
     private CardView cardViewFight;
+    private LottieAnimationView viewFight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,19 +100,12 @@ public class ActivityView extends Activity implements InterfacesPublicas.View {
      * seleccionada por el usuario, para luego
      * mostrarlos en un dialog
      * *******************************************/
-    @Override
-    public void showDetailsImage(HeroApi.Results image) {
+    void showFight() {
         Dialog dialogImage = new Dialog(this);
         dialogImage.setContentView(R.layout.fight_hero);
         dialogImage.setCancelable(false);
 
-        ImageView cerrar = dialogImage.findViewById(R.id.cerrar);
-        cerrar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dialogImage.dismiss();
-            }
-        });
+
 
         Utils.dialogSize(dialogImage);
         dialogImage.show();
@@ -156,6 +150,13 @@ public class ActivityView extends Activity implements InterfacesPublicas.View {
         imageHeroRight = findViewById(R.id.image_hero_right);
         // CardView para ver la pelea
         cardViewFight = findViewById(R.id.cardViewFight);
+        viewFight = findViewById(R.id.view_fight);
+        viewFight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         constraintSplash = findViewById(R.id.constrain_splash);
         constraintLocation = findViewById(R.id.constrain_location);
