@@ -19,7 +19,7 @@ public class ApiAdapter {
 
         if (jsonApi == null) {
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(Endpoints.URL_BASE)
+                    .baseUrl(Endpoints.URL_BASE + Endpoints.API_KEY)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             jsonApi = retrofit.create(JsonApi.class);

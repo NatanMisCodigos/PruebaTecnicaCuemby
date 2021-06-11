@@ -8,39 +8,47 @@ import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
 import android.widget.TextView;
+
+import androidx.cardview.widget.CardView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.airbnb.lottie.LottieAnimationView;
 import com.squareup.picasso.Picasso;
+
 import co.com.cuemby.mobile.pruebatecnicacuemby.R;
-import co.com.cuemby.mobile.pruebatecnicacuemby.interfaces.ImageInterfaces;
-import co.com.cuemby.mobile.pruebatecnicacuemby.model.ImageAdapter;
-import co.com.cuemby.mobile.pruebatecnicacuemby.model.ImageApi;
-import co.com.cuemby.mobile.pruebatecnicacuemby.presenter.ImagePresenter;
+import co.com.cuemby.mobile.pruebatecnicacuemby.interfaces.InterfacesPublicas;
+import co.com.cuemby.mobile.pruebatecnicacuemby.model.HeroAdapter;
+import co.com.cuemby.mobile.pruebatecnicacuemby.model.HeroApi;
+import co.com.cuemby.mobile.pruebatecnicacuemby.presenter.Presenter;
 import co.com.cuemby.mobile.pruebatecnicacuemby.rest.Utils;
 
-public class ActivityView extends Activity implements ImageInterfaces.View {
+public class ActivityView extends Activity implements InterfacesPublicas.View {
 
     private Context context = this;
     private EditText editTextSearch;
     private RecyclerView recyclerViewSearchResults;
-    private ImageInterfaces.Presenter presenter = new ImagePresenter(this, context);
-    private ImageAdapter imageAdapter;
-    private ImageApi usersList;
+    private InterfacesPublicas.Presenter presenter = new Presenter(this, context);
+    private HeroAdapter heroAdapter;
     private ImageView busqueda;
     private ConstraintLayout constraintSplash;
     private ConstraintLayout constraintLocation;
     private LottieAnimationView imageEmpty;
     private LottieAnimationView error404;
     private TextView messageEmpty;
-    private Spinner spinnercategories;
+    // Elementos del heroe de la izquierda
+    private TextView nameHeroLeft;
+    private ImageView imageHeroLeft;
+    private HeroApi.Results heroLeft;
+    // Elementos del heroe de la derecha
+    private TextView nameHeroRight;
+    private ImageView imageHeroRight;
+    private HeroApi.Results heroRight;
+    // Elemento del cardView para ver el enfrentamiento
+    private CardView cardViewFight;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,15 +69,14 @@ public class ActivityView extends Activity implements ImageInterfaces.View {
      * satisfactoria busqueda
      * *******************************************/
     @Override
-    public void showImageList(ImageApi imageList) {
-        this.usersList = imageList;
+    public void showImageList(HeroApi imageList) {
         error404.setVisibility(View.GONE);
         imageEmpty.setVisibility(View.GONE);
         messageEmpty.setVisibility(View.GONE);
         recyclerViewSearchResults.setVisibility(View.VISIBLE);
-        imageAdapter = new ImageAdapter(this.usersList, presenter);
+        heroAdapter = new HeroAdapter(imageList, presenter);
         recyclerViewSearchResults.setLayoutManager(new GridLayoutManager(this, 3));
-        recyclerViewSearchResults.setAdapter(imageAdapter);
+        recyclerViewSearchResults.setAdapter(heroAdapter);
     }
 
     /**********************************************
@@ -93,9 +100,9 @@ public class ActivityView extends Activity implements ImageInterfaces.View {
      * mostrarlos en un dialog
      * *******************************************/
     @Override
-    public void showDetailsImage(ImageApi.Hits image) {
+    public void showDetailsImage(HeroApi.Results image) {
         Dialog dialogImage = new Dialog(this);
-        dialogImage.setContentView(R.layout.image_details);
+        dialogImage.setContentView(R.layout.fight_hero);
         dialogImage.setCancelable(false);
 
         ImageView cerrar = dialogImage.findViewById(R.id.cerrar);
@@ -106,21 +113,26 @@ public class ActivityView extends Activity implements ImageInterfaces.View {
             }
         });
 
-        ImageView imagen = dialogImage.findViewById(R.id.image);
-        Picasso.get().load(image.getLargeImageURL()).into(imagen);
-
-        TextView tags = dialogImage.findViewById(R.id.tags_image);
-        tags.setText( image.getTags().replace(",", "\n") );
-
-        TextView views = dialogImage.findViewById(R.id.views_image);
-        views.setText( "" + image.getViews() );
-
-        TextView like = dialogImage.findViewById(R.id.like_image);
-        like.setText( "" + image.getLikes() );
-
         Utils.dialogSize(dialogImage);
-
         dialogImage.show();
+    }
+
+    @Override
+    public void addHeroLeft(HeroApi.Results hero) {
+        this.heroLeft = hero;
+        nameHeroLeft.setText( hero.getName() );
+        Picasso.get().load( hero.getImage().getUrl() ).into(imageHeroLeft);
+        if(this.heroRight != null)
+            cardViewFight.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void addHeroRight(HeroApi.Results hero) {
+        this.heroRight = hero;
+        nameHeroRight.setText( hero.getName() );
+        Picasso.get().load( hero.getImage().getUrl() ).into(imageHeroRight);
+        if(this.heroLeft != null)
+            cardViewFight.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -136,6 +148,15 @@ public class ActivityView extends Activity implements ImageInterfaces.View {
     private void initItems() {
 
         initEditTextSearch();
+        // Elementos del heroe de la izquierda
+        nameHeroLeft = findViewById(R.id.name_hero_left);
+        imageHeroLeft = findViewById(R.id.image_hero_left);
+        // Elementos del heroe de la derecha
+        nameHeroRight = findViewById(R.id.name_hero_right);
+        imageHeroRight = findViewById(R.id.image_hero_right);
+        // CardView para ver la pelea
+        cardViewFight = findViewById(R.id.cardViewFight);
+
         constraintSplash = findViewById(R.id.constrain_splash);
         constraintLocation = findViewById(R.id.constrain_location);
         imageEmpty = findViewById(R.id.image_empty);
@@ -146,18 +167,17 @@ public class ActivityView extends Activity implements ImageInterfaces.View {
         busqueda.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                searchWithImage();
+                hideSoftKeyboard();
+                presenter.getSearchHero( editTextSearch.getText().toString().trim() );
             }
         });
 
-        initSpinner();
-        presenter.getImageListDefault();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 showConstrainLocation();
             }
-        }, 2500);
+        }, 4700);
     }
 
     /**********************************************
@@ -171,56 +191,13 @@ public class ActivityView extends Activity implements ImageInterfaces.View {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
                         (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    searchWithImage();
                     hideSoftKeyboard();
+                    presenter.getSearchHero( editTextSearch.getText().toString().trim() );
                     return true;
                 }
                 return false;
             }
         });
-    }
-
-    /**********************************************
-     * Enlazo el spinner de categorias y le doy
-     * un comportamiento
-     * *******************************************/
-    private void initSpinner(){
-        spinnercategories = findViewById(R.id.spinner_categorias);
-        spinnercategories.setAdapter(new ArrayAdapter<String>(getApplicationContext(),
-                android.R.layout.simple_spinner_dropdown_item, Utils.categories));
-        spinnercategories.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(editTextSearch.getText().toString().trim().isEmpty()){
-                    presenter.getImageListSpinner(spinnercategories.getSelectedItem().toString());
-                    return;
-                }
-
-                presenter.getImageListSearchSpinner(editTextSearch.getText().toString().trim(),
-                        spinnercategories.getSelectedItem().toString());
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
-        });
-    }
-
-    /**********************************************
-     * Con este metodo, realizo ciertas acciones
-     * que necesito cuando el usuario presione
-     * la imagen de busqueda o la tecla enter
-     * *******************************************/
-    private void searchWithImage(){
-        if(editTextSearch.getText().toString().trim().isEmpty()){
-            presenter.getImageListSpinner(spinnercategories.getSelectedItem().toString());
-            return;
-        }
-        if(spinnercategories.getSelectedItemPosition() == 0){
-            presenter.getImageListSearch(editTextSearch.getText().toString().trim());
-            return;
-        }
-        presenter.getImageListSearchSpinner(editTextSearch.getText().toString().trim(),
-                spinnercategories.getSelectedItem().toString());
     }
 
     /**********************************************

@@ -2,13 +2,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="co.com.cuemby.mobile.pruebatecnicacuemby">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.PruebaTecnicaCuemby">
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         <activity android:name="co.com.cuemby.mobile.pruebatecnicacuemby.view.ActivityView">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">PruebaTecnicaBolsiyo</string>
     <string name="message_loading">Cargando.....</string>
-    <string name="edit_text_search">Buscar palabra</string>
+    <string name="edit_text_search">Buscar heroe</string>
     <string name="generic_error">Ocurrio un error</string>
+    <string name="title_generic">Superhero Racing</string>
 </resources>
